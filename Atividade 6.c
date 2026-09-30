@@ -5,12 +5,12 @@
 #include <stdbool.h>
 #include <raylib.h>
 
-#define TELA_LARGURA    800
-#define TELA_ALTURA     600
-#define PLAYER_RAIO     20.0f
+#define TELA_LARGURA     800
+#define TELA_ALTURA      600
+#define PLAYER_RAIO      20.0f
 #define LIMITE_ENTIDADES 30
-#define QTD_INIMIGOS    5
-#define QTD_ITENS       6
+#define QTD_INIMIGOS     5
+#define QTD_ITENS        6
 #define ARQ_PLACAR      "placar.txt"
 #define ARQ_SAVE        "save.bin"
 
@@ -76,6 +76,7 @@ void excluirObjeto(int indice) {
     if (indice < 0 || indice >= qtdObjetos) return;
     free(objetos[indice]);
     objetos[indice] = objetos[qtdObjetos - 1];
+    objetos[qtdObjetos - 1] = NULL;
     qtdObjetos--;
 }
 
@@ -97,7 +98,7 @@ bool houveColisao(ObjetoJogo *a, ObjetoJogo *b) {
 void renderizarObjeto(ObjetoJogo *e) {
     DrawCircleV(e->pos, e->raio, e->cor);
     if (e->tipo == CAT_INIMIGO) {
-        DrawText(TextFormat("%d", e->vida), e->pos.x - 8, e->pos.y - 26, 14, BLACK);
+        DrawText(TextFormat("%d", e->vida), (int)e->pos.x - 8, (int)e->pos.y - 26, 14, BLACK);
     }
 }
 
@@ -196,11 +197,12 @@ int main(void) {
     while (!WindowShouldClose()) {
         float vel = 250.0f * GetFrameTime();
 
+        // Movimentação com limite para não sair da tela
         if (player != NULL) {
-            if (IsKeyDown(KEY_RIGHT)) player->pos.x += vel;
-            if (IsKeyDown(KEY_LEFT))  player->pos.x -= vel;
-            if (IsKeyDown(KEY_UP))    player->pos.y -= vel;
-            if (IsKeyDown(KEY_DOWN))  player->pos.y += vel;
+            if (IsKeyDown(KEY_RIGHT) && player->pos.x < TELA_LARGURA - player->raio) player->pos.x += vel;
+            if (IsKeyDown(KEY_LEFT)  && player->pos.x > player->raio) player->pos.x -= vel;
+            if (IsKeyDown(KEY_UP)    && player->pos.y > player->raio) player->pos.y -= vel;
+            if (IsKeyDown(KEY_DOWN)  && player->pos.y < TELA_ALTURA - player->raio) player->pos.y += vel;
         }
 
         for (int i = 1; i < qtdObjetos; i++) {
@@ -233,7 +235,7 @@ int main(void) {
         if (IsKeyPressed(KEY_F9)) {
             bool ok = abrirSave();
             if (ok && qtdObjetos > 0) {
-                player = objetos[0]; // Atualiza o ponteiro do player para o novo endereço carregado
+                player = objetos[0]; // Atualiza o ponteiro do player após carregar
             }
             TextCopy(aviso, ok ? "Jogo carregado de save.bin!" : "Nenhum save.bin encontrado!");
             tempoAviso = 2.0f;
@@ -258,7 +260,8 @@ int main(void) {
             renderizarObjeto(objetos[i]);
         }
 
-        DrawText(TextFormat("Jogador: %s    Vida: %d    Pontuacao: %d    Recorde: %d", nomePlayer, player ? player->vida : 0, pontos, recorde), 10, 10, 20, DARKGRAY);
+        DrawText(TextFormat("Jogador: %s    Vida: %d    Pontuacao: %d    Recorde: %d", 
+                 nomePlayer, player ? player->vida : 0, pontos, recorde), 10, 10, 20, DARKGRAY);
         DrawText("F5 salva placar (texto) | F6 salva jogo (binario) | F9 carrega jogo", 10, 36, 17, GRAY);
         DrawText("DELETE apaga save.bin | Setas movem | ESC sai", 10, TELA_ALTURA - 25, 16, GRAY);
 
