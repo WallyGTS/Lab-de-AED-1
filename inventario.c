@@ -65,3 +65,20 @@ int inventarioTotal(Inventario *inv) {
     if (inv == NULL) return 0;
     return inv->total;
 }
+
+bool inventarioEstaCheio(Inventario *inv) {
+    if (inv == NULL) return false;
+    return inv->total >= inv->capacidade;
+}
+
+int inventarioContarPorTipo(Inventario *inv, TipoEntidade tipo) {
+    if (inv == NULL) return 0;
+    
+    int contagem = 0;
+    for (int i = 0; i < inv->total; i++) {
+        if (inv->vetor[i]->tipo == tipo) {
+            contagem++;
+        }
+    }
+    return contagem;
+}
