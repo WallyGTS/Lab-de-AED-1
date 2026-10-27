@@ -16,8 +16,15 @@ typedef struct {
     int vida;
     int largura;
     int altura;
+    union {
+        int valor;
+        int dano;
+    } extra;
 } Entidade;
 
+Entidade* entidadeCriar(TipoEntidade tipo, Vector2 pos);
 bool entidadeColidiu(Entidade *e1, Entidade *e2);
+void entidadeAplicarDano(Entidade *e, int dano);
+void entidadeDesenhar(Entidade *e);
 
 #endif
