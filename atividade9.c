@@ -96,6 +96,7 @@ int main(void) {
             }
         }
 
+
         BeginDrawing();
             ClearBackground(RAYWHITE);
 
@@ -107,8 +108,17 @@ int main(void) {
             DrawText(TextFormat("Entidades no inventario: %d", inventarioTotal(inventario)), 10, 34, 18, GRAY);
             DrawText("Setas movem | ESPACO atira | ESC sai", 10, ALTURA_JANELA - 25, 16, GRAY);
 
+            // Resolução Exercício 2: Contagem de itens restantes
+            int itensRestantes = inventarioContarPorTipo(inventario, ENTIDADE_ITEM);
+            DrawText(TextFormat("Itens restantes: %d", itensRestantes), 10, 58, 18, DARKBLUE);
+
+            // Resolução Exercício 1: Aviso visual de inventário cheio
+            if (inventarioEstaCheio(inventario)) {
+                DrawText("AVISO: Inventario Cheio!", LARGURA_JANELA - 250, 10, 18, RED);
+            }
+
         EndDrawing();
-    }
+}
 
     inventarioDestruir(inventario); // uma única chamada libera tudo (entidades + vetor interno + struct)
 
