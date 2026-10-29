@@ -37,6 +37,7 @@
 #define TOTAL_INIMIGOS  5
 #define TOTAL_ITENS     6
 #define DANO_TIRO       20
+#define VIDA_MAXIMA     100
 
 int main(void) {
     srand((unsigned int)time(NULL));
@@ -88,7 +89,7 @@ int main(void) {
             for (int i = 1; i < inventarioTotal(inventario); i++) {
                 Entidade *e = inventarioObter(inventario, i);
                 if (e->tipo != ENTIDADE_INIMIGO) continue;
-                if (!entidadeColidiu(jogador, e)) {
+                if (entidadeColidiu(jogador, e)) {
                     entidadeAplicarDano(e, DANO_TIRO);
                     if (e->vida <= 0) inventarioRemover(inventario, i);
                     break;
@@ -104,20 +105,25 @@ int main(void) {
                 entidadeDesenhar(inventarioObter(inventario, i));
             }
 
-            DrawText(TextFormat("Vida: %d   Pontuacao: %d", jogador->vida, pontuacao), 10, 10, 22, DARKGRAY);
-            DrawText(TextFormat("Entidades no inventario: %d", inventarioTotal(inventario)), 10, 34, 18, GRAY);
-            DrawText("Setas movem | ESPACO atira | ESC sai", 10, ALTURA_JANELA - 25, 16, GRAY);
+            // barra de vida simples
+            float prop = (float)jogador->vida / VIDA_MAXIMA;
+            DrawRectangle(10, 12, 150, 14, LIGHTGRAY);
+            DrawRectangle(10, 12, (int)(150 * prop), 14, prop > 0.3f ? GREEN : RED);
+            DrawRectangleLines(10, 12, 150, 14, GRAY);
 
-            
+            DrawText(TextFormat("Vida: %d   Pontuacao: %d", jogador->vida, pontuacao), 10, 34, 22, DARKGRAY);
+            DrawText(TextFormat("Entidades no inventario: %d", inventarioTotal(inventario)), 10, 60, 18, GRAY);
+            DrawText("Setas movem | ESPACO ataca | ESC sai", 10, ALTURA_JANELA - 25, 16, GRAY);
+
             int itensRestantes = inventarioContarPorTipo(inventario, ENTIDADE_ITEM);
-            DrawText(TextFormat("Itens restantes: %d", itensRestantes), 10, 58, 18, DARKBLUE);
-      
+            DrawText(TextFormat("Itens restantes: %d", itensRestantes), 10, 82, 18, DARKBLUE);
+
             if (inventarioEstaCheio(inventario)) {
                 DrawText("AVISO: Inventario Cheio!", LARGURA_JANELA - 250, 10, 18, RED);
             }
 
         EndDrawing();
-  }
+    }
 
     inventarioDestruir(inventario); // uma única chamada libera tudo (entidades + vetor interno + struct)
 
